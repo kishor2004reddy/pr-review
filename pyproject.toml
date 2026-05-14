@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pr-review-agent"
+version = "0.1.0"
+description = "Intelligent PR code review system with AI agents for security, quality, performance, and testing analysis"
+readme = "README.md"
+requires-python = ">=3.8"
+
+authors = [
+    {name = "Yarramaddi Kishor Kumar Reddy", email = "kishor04reddy@gmail.com"}
+]
+
+# Update the dependencies as needed
+dependencies = [
+    # "groq>=0.4.0",
+    # "python-dotenv>=1.0.0",
+    # "requests>=2.31.0",
+    # "pydantic>=2.0.0",
+    "click>=8.3.0",           
+    "GitPython>=3.1.0",       
+]
+
+#update the optional dependencies as needed
+# [project.optional-dependencies]
+# dev = [
+#     "pytest>=7.0",
+#     "pytest-cov>=4.0",
+#     "black>=23.0",
+#     "flake8>=6.0",
+#     "isort>=5.0",
+#     "mypy>=1.0",
+# ]
+
+[project.scripts]
+pr-review = "pr_review_agent.cli:main"  # ← Add this
+
+
+
+# [project.urls]
+# Homepage = "https://github.com/yourusername/pr-review-agent"
+# Repository = "https://github.com/yourusername/pr-review-agent.git"
+# Issues = "https://github.com/yourusername/pr-review-agent/issues"
+
+[tool.setuptools]
+packages = ["pr_review_agent"]
