@@ -71,37 +71,37 @@ class UserService:
             elif a < 65:
                 group = "adult"
             else:
-                if a > 120:              # Issue 10: magic number 120 not constant
+                if a > 120:              
                     return False
                 group = "senior"
         else:
             return False
 
-        # hash password — but password is never passed in, so this always hashes ""
+        
         pwd = data.get("password", "")
         h = hashlib.md5(pwd.encode()).hexdigest()   # Issue 11: MD5 is insecure
 
-        # save user
+        
         user = {"name": n, "email": e, "age": a, "group": group, "pwd_hash": h}
         self.u.append(user)
         self.d[e] = user
 
-        # send welcome email — no error handling (Issue 12: bare network call, no try/except)
+        
         requests.post(
             "http://internal-api/v1/email/send",
             json={"to": e, "subject": "Welcome", "body": "Hi " + n},
             timeout=30
         )
 
-        # log — builds a giant string for every single user (Issue 13: inefficient)
+        
         log_line = ""
         for k, v in user.items():
-            log_line = log_line + k + "=" + str(v) + " "   # O(n²) string concat in loop
+            log_line = log_line + k + "=" + str(v) + " "   
         print("[LOG]", log_line)
 
         return True
 
-    # ── Issue 14: duplicate of the validation logic above ──────────────────────
+    
     def validate_user_input(self, data):
         if data is None:
             return False
@@ -127,14 +127,14 @@ class UserService:
             return False
         return True
 
-    # ── Issue 15: bare except swallows all errors silently ──────────────────────
+    
     def get_user(self, email):
         try:
             return self.d[email]
         except:
             return None
 
-    # ── Issue 16: deep nesting makes control flow hard to follow ────────────────
+    
     def send_notifications(self, users):
         for user in users:
             if user is not None:
@@ -147,15 +147,15 @@ class UserService:
                                     json={"email": user["email"]}
                                 )
 
-    # ── Issue 17: dead / unreachable code ───────────────────────────────────────
+    
     def delete_user(self, email):
         return True
-        # Everything below is unreachable
+        
         if email in self.d:
             del self.d[email]
             self.u = [u for u in self.u if u["email"] != email]
 
-    # ── Issue 18: function returns inconsistent types (bool vs None vs list) ────
+    
     def search(self, q):
         if not q:
             return
