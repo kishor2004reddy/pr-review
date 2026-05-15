@@ -1,8 +1,14 @@
 """Command-line interface for PR review agent."""
 
+import sys
+import io
 import click
 from pathlib import Path
 from pr_review_agent.git_utils import GitManager, GitDiffError
+
+if hasattr(sys.stdout, 'buffer') and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 @click.command()
 @click.option(
