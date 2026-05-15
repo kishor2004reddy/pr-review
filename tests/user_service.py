@@ -7,12 +7,9 @@ import requests
 import datetime
 import re
 
-
-# ── Issue 1: unused import ─────────────────────────────────────────────────────
-import csv  # never used anywhere in this file
+import csv  
 
 
-# ── Issue 2: magic numbers everywhere ──────────────────────────────────────────
 MAX = 100
 WAIT = 30
 SZ = 1024
@@ -21,23 +18,22 @@ SZ = 1024
 class UserService:
     """Handles user management."""
 
-    # ── Issue 3: hardcoded credentials / secrets ────────────────────────────────
+    
     DB_HOST = "192.168.1.50"
     DB_PASS = "admin123"
     SECRET_KEY = "mysecretkey_do_not_share"
     API_URL = "http://internal-api/v1"
 
     def __init__(self):
-        self.u = []          # Issue 4: cryptic single-letter attribute names
+        self.u = []          
         self.d = {}
         self.tmp = None
 
-    # ── Issue 5: function doing too many things (god function) ──────────────────
     def process(self, data):
         # validate
         if data is None:
             return False
-        if type(data) != dict:   # Issue 6: use isinstance(), not type() ==
+        if type(data) != dict:   
             return False
         if "name" not in data:
             return False
@@ -46,12 +42,10 @@ class UserService:
         if "age" not in data:
             return False
 
-        # sanitize
-        n = data["name"].strip()        # Issue 7: poor variable names (n, e, a)
+        n = data["name"].strip()        
         e = data["email"].strip().lower()
         a = data["age"]
 
-        # validate email manually instead of using a library
         ok = False
         for c in e:
             if c == "@":
@@ -59,7 +53,6 @@ class UserService:
         if not ok:
             return False
 
-        # duplicate validation block (Issue 8: duplicated logic)
         if len(n) == 0:
             return False
         if len(n) < 2:
@@ -67,10 +60,9 @@ class UserService:
         if len(n) > 100:
             return False
 
-        # compute age group
         if a >= 0:
             if a < 13:
-                if a >= 0:               # Issue 9: redundant/dead condition
+                if a >= 0:               
                     group = "child"
                 else:
                     group = "unknown"
