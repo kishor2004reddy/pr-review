@@ -105,10 +105,12 @@ class GitManager:
             if not diffs:
                 return None  # No changes
             
-            # Get detailed diff output
-            diff_output = base_commit.diff(current_commit, create_patch=True)
-            
-            return diff_output
+            # Get detailed diff output as a single string
+            patches = [
+                item.diff.decode('utf-8', errors='replace')
+                for item in base_commit.diff(current_commit, create_patch=True)
+            ]
+            return '\n'.join(patches) if patches else None
             
         except GitDiffError:
             raise
@@ -130,13 +132,14 @@ class GitManager:
             current_commit = self.repo.head.commit
             
             diffs = base_commit.diff(current_commit)
-            
+
             changed_files = []
             for diff_item in diffs:
+                ct = diff_item.change_type
                 file_info = {
                     "path": diff_item.b_path or diff_item.a_path,
-                    "status": diff_item.status,  # 'M', 'A', 'D', etc.
-                    "change_type": self._get_change_type(diff_item.status)
+                    "status": ct,
+                    "change_type": self._get_change_type(ct)
                 }
                 changed_files.append(file_info)
             
@@ -177,23 +180,23 @@ class GitManager:
             
             stats = {
                 "total_files_changed": len(diffs),
-                "files_added": len([d for d in diffs if d.status[0] == 'A']),
-                "files_modified": len([d for d in diffs if d.status[0] == 'M']),
-                "files_deleted": len([d for d in diffs if d.status[0] == 'D']),
+                "files_added": len([d for d in diffs if d.change_type == 'A']),
+                "files_modified": len([d for d in diffs if d.change_type == 'M']),
+                "files_deleted": len([d for d in diffs if d.change_type == 'D']),
                 "lines_added": 0,
                 "lines_deleted": 0,
             }
-            
+
             # Try to get line counts
             try:
-                diff_output = base_commit.diff(current_commit, create_patch=True)
-                if diff_output:
-                    for line in diff_output.split('\n'):
+                for diff_item in base_commit.diff(current_commit, create_patch=True):
+                    patch = diff_item.diff.decode('utf-8', errors='replace')
+                    for line in patch.split('\n'):
                         if line.startswith('+') and not line.startswith('+++'):
                             stats["lines_added"] += 1
                         elif line.startswith('-') and not line.startswith('---'):
                             stats["lines_deleted"] += 1
-            except:
+            except Exception:
                 pass
             
             return stats
